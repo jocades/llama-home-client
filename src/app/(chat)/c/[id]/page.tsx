@@ -2,6 +2,7 @@ import { type Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getChat } from '@/app/actions'
 import { Chat } from '@/components/chat/chat'
+import { handleChat } from '@/lib/services/openai'
 
 export interface ChatPageProps {
   params: {
@@ -20,11 +21,10 @@ export async function generateMetadata({
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const chat = await getChat(params.id)
-  console.log(chat)
 
   if (!chat) {
     notFound()
   }
 
-  return <Chat id={chat.id} initialMessages={chat.messages} />
+  return <Chat id={chat.id} initialMessages={chat.messages} api={handleChat} />
 }

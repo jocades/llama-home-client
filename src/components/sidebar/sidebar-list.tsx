@@ -1,15 +1,21 @@
 import { clearChats, getChats } from '@/app/actions'
 import { ClearHistory } from './clear-history'
 import { SidebarItems } from './sidebar-items'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { cache } from 'react'
+import { ThemeToggle } from '../theme-toggle'
 
-const loadChats = cache(async () => {
+interface SidebarListProps {
+  userId?: string
+  children?: React.ReactNode
+}
+
+const loadChats = cache(async (userId?: string) => {
+  console.log('loading chats')
   return await getChats()
 })
 
-export async function SidebarList() {
-  const chats = await loadChats()
+export async function SidebarList({ userId }: SidebarListProps) {
+  const chats = await getChats()
 
   return (
     <div className='flex flex-1 flex-col overflow-hidden'>

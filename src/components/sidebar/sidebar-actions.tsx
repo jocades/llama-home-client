@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { toast } from 'react-hot-toast'
 
-import { ServerActionResult, type Chat } from '@/lib/types'
+import { type Chat, ServerActionResult } from '@/lib/types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,16 +42,16 @@ export function SidebarActions({
 
   return (
     <>
-      <div className="space-x-1">
+      <div className='space-x-1'>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
-              className="size-6 p-0 hover:bg-background"
+              variant='ghost'
+              className='h-6 w-6 p-0 hover:bg-background'
               onClick={() => setShareDialogOpen(true)}
             >
               <IconShare />
-              <span className="sr-only">Share</span>
+              <span className='sr-only'>Share</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Share chat</TooltipContent>
@@ -59,13 +59,13 @@ export function SidebarActions({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
-              className="size-6 p-0 hover:bg-background"
+              variant='ghost'
+              className='h-6 w-6 p-0 hover:bg-background'
               disabled={isRemovePending}
               onClick={() => setDeleteDialogOpen(true)}
             >
               <IconTrash />
-              <span className="sr-only">Delete</span>
+              <span className='sr-only'>Delete</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Delete chat</TooltipContent>
@@ -114,7 +114,7 @@ export function SidebarActions({
                 })
               }}
             >
-              {isRemovePending && <IconSpinner className="mr-2 animate-spin" />}
+              {isRemovePending && <IconSpinner className='mr-2 animate-spin' />}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

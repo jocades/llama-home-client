@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { type Chat } from '@/lib/types'
 import fs from 'fs/promises'
 import path from 'path'
+import { Message } from 'ai'
+import { nanoid } from '@/lib/utils'
 
 const chatsPath = 'db/chats'
 const p = (...args: string[]) => path.join(chatsPath, ...args)
@@ -28,9 +30,12 @@ const write = async (path: string, payload: any) => {
 export async function getChats() {
   const chats = []
   for (const chatId of await fs.readdir(chatsPath)) {
-    chats.push(await read(p(chatId, `c.json`)))
+    chats.push(await read(p(chatId, `c.json`)) as Chat)
   }
-  return chats.toReversed() as Chat[]
+
+  // order by createdAt
+  return chats.sort((a, b) => b.createdAt - a.createdAt)
+  // return chats.toReversed() as Chat[]
 }
 
 export async function getChat(id: string) {
@@ -40,16 +45,30 @@ export async function getChat(id: string) {
   }
 }
 
-export async function insertChat(chatId: string, payload: any) {
-  const chatPath = p(chatId)
+export async function insertChat(
+  payload: { id?: string; messages: Omit<Message, 'id'>[] },
+) {
+  const title = payload.messages[0]?.content?.substring(0, 100)
+  const id = payload.id ?? nanoid()
+  const createdAt = Date.now()
+
+  const chat = {
+    id,
+    title,
+    createdAt,
+    path: `/c/${id}`,
+    messages: payload.messages,
+  }
+
+  const chatPath = p(chat.id)
   await fs.mkdir(chatPath, { recursive: true })
-  await write(path.join(chatPath, `c.json`), payload)
-  await write(path.join(chatPath, `m.json`), payload.messages)
+  await write(path.join(chatPath, `c.json`), chat)
+  await write(path.join(chatPath, `m.json`), chat.messages)
 }
 
 export async function removeChat({ id, path }: { id: string; path: string }) {
   await fs
-    .rm(path, { recursive: true })
+    .rm(p(id), { recursive: true })
     .catch((err: any) => console.error('Error removing chat', err))
 
   revalidatePath('/')
@@ -79,9 +98,13 @@ export async function shareChat(id: string) {
     sharePath: `/share/${chat.id}`,
   }
 
-  await insertChat(chat.id, payload)
+  await insertChat(payload)
 
   return payload
+}
+
+export async function refreshHistory(path: string) {
+  redirect(path)
 }
 
 // export async function getSharedChat(id: string) {

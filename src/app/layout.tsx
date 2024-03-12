@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Toaster } from 'react-hot-toast'
+import { Header } from '@/components/header'
 
 export const metadata = {
   title: {
@@ -39,7 +40,8 @@ export default function Root(props: { children: React.ReactNode }) {
       >
         <Providers>
           <div className='flex flex-col min-h-screen'>
-            <main className='flex flex-col flex-1 bg-red-200/50'>
+            <Header />
+            <main className='flex flex-col flex-1 bg-muted/50'>
               {props.children}
             </main>
           </div>
