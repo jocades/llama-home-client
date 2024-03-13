@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast'
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { StreamingReactResponseAction } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { refreshHistory } from '@/app/actions'
+import { insertChat, refreshHistory } from '@/app/actions'
 import { ChatList } from '@/components/chat/chat-list'
 import { ChatPanel } from '@/components/chat/chat-panel'
 import { ChatScrollAnchor } from '@/components/chat/chat-scroll-anchor'
@@ -47,14 +47,15 @@ export function Chat({ id, initialMessages, className, api }: ChatProps) {
     previewToken ?? '',
   )
 
-  const cachedApi = React.useMemo(
-    () => api?.bind(null, { id, previewToken }),
-    [api, id, previewToken],
-  )
+  // const cachedApi = React.useMemo(
+  //   () => api?.bind(null, { id, previewToken }),
+  //   [api, id, previewToken],
+  // )
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
-      api: cachedApi,
+      // api: cachedApi,
+      api: '/api/chat',
       initialMessages,
       id,
       body: {
@@ -66,26 +67,28 @@ export function Chat({ id, initialMessages, className, api }: ChatProps) {
           toast.error(response.statusText)
         }
       },
-      async onFinish() {
-        if (!path.includes('/c/')) {
-          setNewChatId(id)
-          await refreshHistory(`/c/${id}`)
-        }
+      async onFinish(msg) {
+        console.log('LAST_MESSAGE', msg)
+        console.log('MESSAGES', messages)
+        // await insertChat({ id, messages })
+
+        // if (!path.includes('/c/')) {
+        //   setNewChatId(id)
+        //   await refreshHistory(`/c/${id}`)
+        // }
       },
     })
 
   return (
     <>
-      <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-        {messages.length
-          ? (
-            <>
-              <ChatList messages={messages} />
-              <ChatScrollAnchor trackVisibility={isLoading} />
-            </>
-          )
-          : <EmptyScreen setInput={setInput} />}
-      </div>
+      {messages.length
+        ? (
+          <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
+            <ChatList messages={messages} />
+            <ChatScrollAnchor trackVisibility={isLoading} />
+          </div>
+        )
+        : <EmptyScreen setInput={setInput} />}
       <ChatPanel
         id={id}
         isLoading={isLoading}

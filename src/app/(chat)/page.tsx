@@ -5,5 +5,5 @@ import { handleChat } from '@/lib/services/openai'
 export default function IndexPage() {
   const id = nanoid()
 
-  return <Chat id={id} api={handleChat} />
+  return <Chat id={id} />
 }

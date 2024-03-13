@@ -15,7 +15,7 @@ export async function generateMetadata({
 }: ChatPageProps): Promise<Metadata> {
   const chat = await getChat(params.id)
   return {
-    title: chat?.title.toString().slice(0, 50) ?? 'Chat',
+    title: chat?.title?.toString()?.slice(0, 50) ?? 'Chat',
   }
 }
 
@@ -26,5 +26,5 @@ export default async function ChatPage({ params }: ChatPageProps) {
     notFound()
   }
 
-  return <Chat id={chat.id} initialMessages={chat.messages} api={handleChat} />
+  return <Chat id={chat.id} initialMessages={chat.messages} />
 }
