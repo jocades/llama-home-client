@@ -1,7 +1,9 @@
-import { getChat } from '@/app/actions'
-import { useEffect, useState } from 'react'
+import { getChat, insertChat } from '@/app/actions'
+import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from './use-local-storage'
+import ollama from 'ollama/browser'
 import { UseChatOptions } from '../types'
+import { nanoid } from 'nanoid'
 
 export type Chat = {
   id: string
@@ -19,56 +21,57 @@ export type Message = {
   content: string
 }
 
-function useChat(
-  { id, initialMessages, body, onResponse, model }: UseChatOptions,
+export function useChat(
+  { id, initialMessages, body, onResponse, model, onFinish }: UseChatOptions,
 ) {
-  // const navigate = useNavigate()
-
-  const [chatId, setChatId] = useLocalStorage<string | null>(
-    'ollama:chatId',
-    null,
-  )
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>(initialMessages ?? [])
   const [input, setInput] = useState('')
   const [error, setError] = useState<Error>()
   const [isLoading, setIsLoading] = useState(false)
 
-  model = model ?? 'llama2'
+  const messagesRef = useRef(messages)
 
-  useEffect(() => {
-    console.log('chatId', chatId)
-    if (chatId) {
-      console.log('fetching chat')
-      getChat(chatId)
-        .then((res) => setMessages(res.messages))
-    }
-  }, [chatId])
-
-  const append = async (message: Message & { id?: number }) => {
+  const append = async (message: Message & { id?: string }) => {
     console.log(model, message)
 
-    setMessages((prev) => [
-      ...prev,
-      message,
-    ])
+    setMessages((prev) => [...prev, message])
+    messagesRef.current = [...messagesRef.current, message]
 
     setIsLoading(true)
+
     const res = await ollama.chat({
-      model,
-      messages: [
-        ...messages,
-        message,
-      ],
+      model: model ?? 'llama2',
+      messages: [...messages, message],
       stream: true,
     })
 
+    const newMsg = {
+      id: nanoid(),
+      role: 'assistant',
+      content: '',
+    }
+
     setMessages((prev) => [
       ...prev,
-      { role: 'assistant', content: '' },
+      newMsg,
     ])
+
+    messagesRef.current = [
+      ...messagesRef.current,
+      newMsg,
+    ]
 
     for await (const part of res) {
       if (!part.done) {
+        messagesRef.current = [
+          ...messagesRef.current.slice(0, -1),
+          {
+            ...messagesRef.current[messagesRef.current.length - 1],
+            content:
+              messagesRef.current[messagesRef.current.length - 1].content +
+              part.message.content,
+          },
+        ]
         setMessages((prev) => {
           const last = prev[prev.length - 1]
           return [
@@ -83,36 +86,16 @@ function useChat(
     }
     setIsLoading(false)
 
-    if (!chatId) {
-      const { chat_id } = await createChat(
-        message.content.substring(0, 100),
-      )
-      setChatId(chat_id.toString())
-      await sendMessage(chat_id, messages)
-      // navigate(`/chat/${chat_id}`)
-    } else {
-      await sendMessage(chatId, message)
-    }
+    // using react the messages here will be empty if no initialMessages are provided
+    // because the state is not updated until we return from this function
+    // HOW TO FIX THIS?
+    await insertChat({ id, messages: messagesRef.current })
+
+    onFinish?.()
   }
 
   // regenerate the last AI chat response
   const reload = async () => {
-    const lastMessage = messages[messages.length - 1]
-
-    if (lastMessage.role === 'user') {
-      setMessages(messages.slice(1, -1))
-      setIsLoading(true)
-      const res = await ollama.chat({
-        model,
-        messages: messages.slice(0, -1),
-        stream: false,
-      })
-      setIsLoading(false)
-      setMessages((prev) => [
-        ...prev,
-        res.message,
-      ])
-    }
   }
 
   const stop = () => {
@@ -127,7 +110,5 @@ function useChat(
     append,
     reload,
     stop,
-    chatId,
-    setChatId,
   }
 }

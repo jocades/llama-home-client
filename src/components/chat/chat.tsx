@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { type Message, useChat } from 'ai/react'
+import { type Message } from 'ai/react'
 import { toast } from 'react-hot-toast'
 
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
@@ -23,21 +23,37 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { usePathname } from 'next/navigation'
+import { useChat } from '@/lib/hooks/use-chat'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import { ModelResponse } from 'ollama/browser'
 
 const IS_PREVIEW = process.env.VERCEL_ENV === 'preview'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id: string
-  api: StreamingReactResponseAction
+  models: ModelResponse[]
+  api?: StreamingReactResponseAction
 }
 
-export function Chat({ id, initialMessages, className, api }: ChatProps) {
+export function Chat(
+  { id, initialMessages, className, models, api }: ChatProps,
+) {
   const path = usePathname()
+
+  const [model, setModel] = React.useState('llama2:latest')
+
   const [, setNewChatId] = useLocalStorage<string | null>(
     'newChatId',
     null,
   )
+
   const [previewToken, setPreviewToken] = useLocalStorage<string | null>(
     'ai-token',
     null,
@@ -55,7 +71,7 @@ export function Chat({ id, initialMessages, className, api }: ChatProps) {
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // api: cachedApi,
-      api: '/api/chat',
+      // api: '/api/chat',
       initialMessages,
       id,
       body: {
@@ -67,20 +83,33 @@ export function Chat({ id, initialMessages, className, api }: ChatProps) {
           toast.error(response.statusText)
         }
       },
-      async onFinish(msg) {
-        console.log('LAST_MESSAGE', msg)
-        console.log('MESSAGES', messages)
-        // await insertChat({ id, messages })
-
-        // if (!path.includes('/c/')) {
-        //   setNewChatId(id)
-        //   await refreshHistory(`/c/${id}`)
-        // }
+      async onFinish() {
+        if (!path.includes('/c/')) {
+          setNewChatId(id)
+          await refreshHistory(`/c/${id}`)
+        }
       },
     })
 
   return (
     <>
+      <div className='flex items-center justify-center py-4 w-full'>
+        <Select
+          value={model}
+          onValueChange={(name) => setModel(name)}
+        >
+          <SelectTrigger className='max-w-[200px]'>
+            <SelectValue placeholder='Select a model' />
+          </SelectTrigger>
+          <SelectContent>
+            {models?.map((model) => (
+              <SelectItem key={model.name} value={model.name}>
+                {model.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       {messages.length
         ? (
           <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>

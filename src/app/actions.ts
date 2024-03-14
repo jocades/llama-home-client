@@ -64,6 +64,8 @@ export async function insertChat(
   await fs.mkdir(chatPath, { recursive: true })
   await write(path.join(chatPath, `c.json`), chat)
   await write(path.join(chatPath, `m.json`), chat.messages)
+
+  console.log('Chat inserted', { id, title, createdAt })
 }
 
 export async function removeChat({ id, path }: { id: string; path: string }) {

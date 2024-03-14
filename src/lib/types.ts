@@ -40,7 +40,7 @@ export type UseChatOptions = {
    * generated. When provided, the `useChat` hook with the same `id` will
    * have shared states across components.
    */
-  id?: number | string
+  id?: string
   /**
    * Initial messages of the chat. Useful to load an existing chat history.
    */
@@ -61,7 +61,7 @@ export type UseChatOptions = {
   /**
    * Callback function to be called when the chat is finished streaming.
    */
-  onFinish?: (message: Message) => void
+  onFinish?: () => void
   /**
    * Callback function to be called when an error is encountered.
    */
