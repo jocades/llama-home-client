@@ -47,8 +47,6 @@ export function Chat(
 ) {
   const path = usePathname()
 
-  const [model, setModel] = React.useState('llama2:latest')
-
   const [, setNewChatId] = useLocalStorage<string | null>(
     'newChatId',
     null,
@@ -68,28 +66,37 @@ export function Chat(
   //   [api, id, previewToken],
   // )
 
-  const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      // api: cachedApi,
-      // api: '/api/chat',
-      initialMessages,
+  const {
+    messages,
+    append,
+    reload,
+    stop,
+    isLoading,
+    input,
+    setInput,
+    model,
+    setModel,
+  } = useChat({
+    // api: cachedApi,
+    // api: '/api/chat',
+    initialMessages,
+    id,
+    body: {
       id,
-      body: {
-        id,
-        previewToken,
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast.error(response.statusText)
-        }
-      },
-      async onFinish() {
-        if (!path.includes('/c/')) {
-          setNewChatId(id)
-          await refreshHistory(`/c/${id}`)
-        }
-      },
-    })
+      previewToken,
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
+      }
+    },
+    async onFinish() {
+      if (!path.includes('/c/')) {
+        setNewChatId(id)
+        await refreshHistory(`/c/${id}`)
+      }
+    },
+  })
 
   return (
     <>

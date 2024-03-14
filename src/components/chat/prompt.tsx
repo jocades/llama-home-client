@@ -76,17 +76,14 @@ export function Prompt({ onSubmit, input, setInput, isLoading }: PromptProps) {
                 className='hidden'
                 onChange={(e) => {
                   if (!e.target?.files || !fsRef.current) return
-                  console.log(e.target.files)
 
-                  // pass the image to b64 encoded string
+                  // image to b64 encoded string
                   const reader = new FileReader()
                   reader.onload = (e) => {
                     setImage(e.target?.result as string)
                     console.log(e.target?.result)
                   }
                   reader.readAsDataURL(e.target.files[0])
-
-                  // reset the input
                   fsRef.current.value = ''
                 }}
               />

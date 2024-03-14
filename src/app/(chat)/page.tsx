@@ -6,7 +6,6 @@ import ollama from 'ollama'
 export default async function IndexPage() {
   const id = nanoid()
   const { models } = await ollama.list()
-  console.log(models)
 
   return <Chat id={id} models={models} />
 }

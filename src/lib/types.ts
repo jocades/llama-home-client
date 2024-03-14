@@ -46,11 +46,6 @@ export type UseChatOptions = {
    */
   initialMessages?: Message[]
   /**
-   * The model to use for the chat. If not provided, the default model will be
-   * used. The default model is set by the server.
-   */
-  model?: string
-  /**
    * Initial input of the chat.
    */
   initialInput?: string

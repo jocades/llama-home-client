@@ -22,8 +22,9 @@ export type Message = {
 }
 
 export function useChat(
-  { id, initialMessages, body, onResponse, model, onFinish }: UseChatOptions,
+  { id, initialMessages, body, onResponse, onFinish }: UseChatOptions,
 ) {
+  const [model, setModel] = useLocalStorage<string>('model', 'llama2:latest')
   const [messages, setMessages] = useState<Message[]>(initialMessages ?? [])
   const [input, setInput] = useState('')
   const [error, setError] = useState<Error>()
@@ -40,7 +41,7 @@ export function useChat(
     setIsLoading(true)
 
     const res = await ollama.chat({
-      model: model ?? 'llama2',
+      model,
       messages: [...messages, message],
       stream: true,
     })
@@ -88,7 +89,6 @@ export function useChat(
 
     // using react the messages here will be empty if no initialMessages are provided
     // because the state is not updated until we return from this function
-    // HOW TO FIX THIS?
     await insertChat({ id, messages: messagesRef.current })
 
     onFinish?.()
@@ -110,5 +110,7 @@ export function useChat(
     append,
     reload,
     stop,
+    model,
+    setModel,
   }
 }
