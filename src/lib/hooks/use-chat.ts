@@ -1,5 +1,5 @@
-import { getChat, insertChat } from '@/app/actions'
-import { useEffect, useRef, useState } from 'react'
+import { insertChat } from '@/app/actions'
+import { useRef, useState } from 'react'
 import { useLocalStorage } from './use-local-storage'
 import ollama from 'ollama/browser'
 import { UseChatOptions } from '../types'
@@ -17,8 +17,9 @@ export type Chat = {
 
 export type Message = {
   id: string
-  role: string //'system' | 'user' | 'assistant'
+  role: string // 'system' | 'user' | 'assistant'
   content: string
+  model?: string
 }
 
 export function useChat(
@@ -32,7 +33,7 @@ export function useChat(
 
   const messagesRef = useRef(messages)
 
-  const append = async (message: Message & { id?: string }) => {
+  const append = async (message: Message) => {
     console.log(model, message)
 
     setMessages((prev) => [...prev, message])
@@ -50,6 +51,7 @@ export function useChat(
       id: nanoid(),
       role: 'assistant',
       content: '',
+      model,
     }
 
     setMessages((prev) => [

@@ -69,6 +69,7 @@ export type UseChatOptions = {
    * ```
    */
   body?: object
+  showModel?: boolean
 }
 
 export type UseChatHelpers = {

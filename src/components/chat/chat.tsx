@@ -30,6 +30,10 @@ import {
   SelectValue,
 } from '../ui/select'
 import { ModelResponse } from 'ollama/browser'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Settings2Icon } from 'lucide-react'
+import { Checkbox } from '../ui/checkbox'
+import { Label } from '../ui/label'
 
 const IS_PREVIEW = process.env.VERCEL_ENV === 'preview'
 
@@ -43,6 +47,8 @@ export function Chat(
   { id, initialMessages, className, models }: ChatProps,
 ) {
   const path = usePathname()
+
+  const [showModel, setShowModel] = useLocalStorage('showModel', true)
 
   const [, setNewChatId] = useLocalStorage<string | null>(
     'newChatId',
@@ -90,7 +96,8 @@ export function Chat(
 
   return (
     <>
-      <div className='flex items-center justify-center py-4 w-full'>
+      <div className='flex flex-1 items-center justify-between px-8 py-4 w-full'>
+        <div />
         <Select
           value={model}
           onValueChange={(name) => setModel(name)}
@@ -106,11 +113,28 @@ export function Chat(
             ))}
           </SelectContent>
         </Select>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              className='size-10 rounded-full p-0'
+              variant='outline'
+            >
+              <Settings2Icon className='size-4' />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='max-w-[200px]'>
+            <div className='flex items-center justify-between text-sm'>
+              {/* <Label className='text-sm'>Show model</Label> */}
+              <p className='text-sm'>Show model</p>
+              <Checkbox checked={showModel} onCheckedChange={setShowModel} />
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
       {messages.length
         ? (
           <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-            <ChatList messages={messages} />
+            <ChatList messages={messages} showModel={showModel} />
             <ChatScrollAnchor trackVisibility={isLoading} />
           </div>
         )

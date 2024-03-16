@@ -10,9 +10,12 @@ import { Message } from '@/lib/hooks/use-chat'
 
 export interface ChatMessageProps {
   message: Message
+  showModel?: boolean
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function ChatMessage(
+  { message, showModel, ...props }: ChatMessageProps,
+) {
   const isUser = message.role === 'user'
 
   return (
@@ -20,14 +23,22 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       className={cn('group relative mb-4 flex items-start md:-ml-12')}
       {...props}
     >
-      <div
-        className={cn(
-          'flex size-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
-          isUser ? 'bg-background' : 'bg-primary text-primary-foreground',
+      <div className='flex flex-col gap-1'>
+        <div
+          className={cn(
+            'flex size-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+            isUser ? 'bg-background' : 'bg-primary text-primary-foreground',
+          )}
+        >
+          {isUser ? <IconUser /> : <IconOpenAI />}
+        </div>
+        {!isUser && showModel && (
+          <div className='absolute -top-4 text-xs text-muted-foreground'>
+            {message.model?.split(':')[0]}
+          </div>
         )}
-      >
-        {isUser ? <IconUser /> : <IconOpenAI />}
       </div>
+
       <div className='flex-1 px-1 ml-4 space-y-2 overflow-hidden'>
         <MemoizedReactMarkdown
           className='prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0'
