@@ -1,4 +1,4 @@
-import { type experimental_StreamingReactResponse, type Message } from 'ai'
+import { Message } from './hooks/use-chat'
 
 export interface Chat extends Record<string, any> {
   id: string
@@ -10,27 +10,22 @@ export interface Chat extends Record<string, any> {
   sharePath?: string
 }
 
-export type ServerActionResult<Result> = Promise<
-  | Result
-  | {
-    error: string
-  }
->
+export type ServerActionResult<T> = Promise<T | { error: string }>
 
 // TODO: Import from ai/react when it's available.
-export type StreamingReactResponseAction = (
-  meta: {
-    id?: string
-    previewToken: string | null
-  },
-  {
-    messages,
-    data,
-  }: {
-    messages: Message[]
-    data?: Record<string, string>
-  },
-) => Promise<experimental_StreamingReactResponse>
+// export type StreamingReactResponseAction = (
+//   meta: {
+//     id?: string
+//     previewToken: string | null
+//   },
+//   {
+//     messages,
+//     data,
+//   }: {
+//     messages: Message[]
+//     data?: Record<string, string>
+//   },
+// ) => Promise<experimental_StreamingReactResponse>
 
 // import { Message } from 'ollama/browser'
 

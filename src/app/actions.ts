@@ -2,11 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { type Chat } from '@/lib/types'
 import fs from 'fs/promises'
 import path from 'path'
-import { Message } from 'ai'
 import { nanoid } from '@/lib/utils'
+import { Chat, Message } from '@/lib/hooks/use-chat'
 
 const chatsPath = 'db/chats'
 const p = (...args: string[]) => path.join(chatsPath, ...args)
@@ -57,15 +56,19 @@ export async function insertChat(
     title,
     createdAt,
     path: `/c/${id}`,
-    messages: payload.messages,
   }
 
   const chatPath = p(chat.id)
   await fs.mkdir(chatPath, { recursive: true })
   await write(path.join(chatPath, `c.json`), chat)
-  await write(path.join(chatPath, `m.json`), chat.messages)
+  await write(path.join(chatPath, `m.json`), payload.messages)
 
-  console.log('Chat inserted', { id, title, createdAt })
+  console.log('Chat inserted', {
+    id,
+    title,
+    createdAt,
+    messages: payload.messages.length,
+  })
 }
 
 export async function removeChat({ id, path }: { id: string; path: string }) {

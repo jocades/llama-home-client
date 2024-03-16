@@ -1,11 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { type Message } from 'ai/react'
 import { toast } from 'react-hot-toast'
 
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
-import { StreamingReactResponseAction } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { insertChat, refreshHistory } from '@/app/actions'
 import { ChatList } from '@/components/chat/chat-list'
@@ -23,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { usePathname } from 'next/navigation'
-import { useChat } from '@/lib/hooks/use-chat'
+import { Message, useChat } from '@/lib/hooks/use-chat'
 import {
   Select,
   SelectContent,
@@ -39,11 +37,10 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id: string
   models: ModelResponse[]
-  api?: StreamingReactResponseAction
 }
 
 export function Chat(
-  { id, initialMessages, className, models, api }: ChatProps,
+  { id, initialMessages, className, models }: ChatProps,
 ) {
   const path = usePathname()
 
@@ -61,11 +58,6 @@ export function Chat(
     previewToken ?? '',
   )
 
-  // const cachedApi = React.useMemo(
-  //   () => api?.bind(null, { id, previewToken }),
-  //   [api, id, previewToken],
-  // )
-
   const {
     messages,
     append,
@@ -77,8 +69,6 @@ export function Chat(
     model,
     setModel,
   } = useChat({
-    // api: cachedApi,
-    // api: '/api/chat',
     initialMessages,
     id,
     body: {
