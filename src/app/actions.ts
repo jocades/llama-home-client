@@ -45,28 +45,33 @@ export async function getChat(id: string) {
 }
 
 export async function insertChat(
-  payload: { id?: string; messages: Omit<Message, 'id'>[] },
+  payload: { id?: string; messages: Omit<Message, 'id'>[]; sharePath?: string },
 ) {
   const title = payload.messages[0]?.content?.substring(0, 100)
   const id = payload.id ?? nanoid()
   const createdAt = Date.now()
+  const sharePath = payload.sharePath ?? null
 
   const chat = {
     id,
     title,
     createdAt,
+    sharePath,
     path: `/c/${id}`,
   }
 
   const chatPath = p(chat.id)
   await fs.mkdir(chatPath, { recursive: true })
   await write(path.join(chatPath, `c.json`), chat)
-  await write(path.join(chatPath, `m.json`), payload.messages)
+  if (payload.messages.length > 0) {
+    await write(path.join(chatPath, `m.json`), payload.messages)
+  }
 
   console.log('Chat inserted', {
     id,
     title,
     createdAt,
+    sharePath,
     messages: payload.messages.length,
   })
 }
@@ -90,7 +95,7 @@ export async function clearChats() {
 }
 
 export async function shareChat(id: string) {
-  const chat = await getChat(id)
+  const chat = await read(p(id, `c.json`)) as Chat
 
   if (!chat) {
     return {
@@ -103,9 +108,19 @@ export async function shareChat(id: string) {
     sharePath: `/share/${chat.id}`,
   }
 
-  await insertChat(payload)
+  await write(p(id, `c.json`), payload)
 
   return payload
+}
+
+export async function getSharedChat(id: string) {
+  const chat = await getChat(id)
+
+  if (!chat || !chat.sharePath) {
+    return null
+  }
+
+  return chat
 }
 
 export async function refreshHistory(path: string) {
@@ -120,31 +135,4 @@ export async function refreshHistory(path: string) {
 //   }
 
 //   return chat
-// }
-
-// export async function shareChat(id: string) {
-//   const session = await auth()
-
-//   if (!session?.user?.id) {
-//     return {
-//       error: 'Unauthorized'
-//     }
-//   }
-
-//   const chat = await kv.hgetall<Chat>(`chat:${id}`)
-
-//   if (!chat || chat.userId !== session.user.id) {
-//     return {
-//       error: 'Something went wrong'
-//     }
-//   }
-
-//   const payload = {
-//     ...chat,
-//     sharePath: `/share/${chat.id}`
-//   }
-
-//   await kv.hmset(`chat:${chat.id}`, payload)
-
-//   return payload
 // }

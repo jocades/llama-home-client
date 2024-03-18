@@ -1,7 +1,7 @@
 import { type Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getChat } from '@/app/actions'
-import { Chat } from '@/components/chat/chat'
+import { Chat } from '@/components/chat'
 import ollama from 'ollama'
 
 export interface ChatPageProps {

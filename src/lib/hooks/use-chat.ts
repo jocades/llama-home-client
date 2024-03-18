@@ -54,15 +54,8 @@ export function useChat(
       model,
     }
 
-    setMessages((prev) => [
-      ...prev,
-      newMsg,
-    ])
-
-    messagesRef.current = [
-      ...messagesRef.current,
-      newMsg,
-    ]
+    setMessages((prev) => [...prev, newMsg])
+    messagesRef.current = [...messagesRef.current, newMsg]
 
     for await (const part of res) {
       if (!part.done) {
@@ -98,6 +91,7 @@ export function useChat(
 
   // regenerate the last AI chat response
   const reload = async () => {
+    // TODO
   }
 
   const stop = () => {

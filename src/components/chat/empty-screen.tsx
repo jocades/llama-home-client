@@ -22,7 +22,7 @@ const exampleMessages = [
 
 export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
   return (
-    <div className='flex w-full h-full items-center justify-center'>
+    <div className='flex w-full h-[80%] items-center justify-center'>
       <div className='flex flex-col gap-4 items-center'>
         <Image
           src='/ollama.png'

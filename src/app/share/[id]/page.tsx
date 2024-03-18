@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 
 import { formatDate } from '@/lib/utils'
 import { getSharedChat } from '@/app/actions'
-import { ChatList } from '@/components/chat-list'
-import { FooterText } from '@/components/footer'
+import { ChatList } from '@/components/chat/chat-list'
+import { FooterText } from '@/components/chat/footer'
 
 interface SharePageProps {
   params: {
@@ -13,12 +13,12 @@ interface SharePageProps {
 }
 
 export async function generateMetadata({
-  params
+  params,
 }: SharePageProps): Promise<Metadata> {
   const chat = await getSharedChat(params.id)
 
   return {
-    title: chat?.title.slice(0, 50) ?? 'Chat'
+    title: chat?.title.slice(0, 50) ?? 'Chat',
   }
 }
 

@@ -29,7 +29,7 @@ export function randInt() {
 
 export const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  7
+  7,
 ) // 7-character random string
 
 /**
@@ -96,6 +96,15 @@ export async function allFulfilled<const T>(values: T[]) {
   return settled.reduce(
     (acc, result) =>
       result.status === 'fulfilled' ? [...acc, result.value] : acc,
-    [] as Awaited<T>[]
+    [] as Awaited<T>[],
   )
+}
+
+export function formatDate(input: string | number | Date): string {
+  const date = new Date(input)
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }

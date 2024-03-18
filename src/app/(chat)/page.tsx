@@ -1,5 +1,5 @@
 import { nanoid } from '@/lib/utils'
-import { Chat } from '@/components/chat/chat'
+import { Chat } from '@/components/chat'
 import ollama from 'ollama'
 
 export default async function IndexPage() {

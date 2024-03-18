@@ -10,7 +10,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
-import { useRouter } from 'next/navigation'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ImagePlusIcon, MicIcon } from 'lucide-react'
 
@@ -22,8 +21,9 @@ export interface PromptProps
 
 export function Prompt({ onSubmit, input, setInput, isLoading }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
+
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
-  const router = useRouter()
+
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
