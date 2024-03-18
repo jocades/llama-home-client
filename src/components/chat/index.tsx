@@ -31,7 +31,7 @@ export function Chat(
     null,
   )
 
-  const [showModel, setShowModel] = useLocalStorage('showModel', true)
+  const [showModel, setShowModel] = useLocalStorage('showModel', false)
 
   const {
     messages,
@@ -44,14 +44,8 @@ export function Chat(
     model,
     setModel,
   } = useChat({
-    initialMessages,
     id,
-    body: { id },
-    onResponse(response) {
-      if (response.status === 401) {
-        toast.error(response.statusText)
-      }
-    },
+    initialMessages,
     async onFinish() {
       if (!path.includes('/c/')) {
         setNewChatId(id)

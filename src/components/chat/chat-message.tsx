@@ -7,6 +7,7 @@ import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from './chat-message-actions'
 import { Message } from '@/lib/hooks/use-chat'
+import { BotIcon } from 'lucide-react'
 
 export interface ChatMessageProps {
   message: Message
@@ -30,7 +31,7 @@ export function ChatMessage(
             isUser ? 'bg-background' : 'bg-primary text-primary-foreground',
           )}
         >
-          {isUser ? <IconUser /> : <IconOpenAI />}
+          {isUser ? <IconUser /> : <BotIcon className='w-5 h-5' />}
         </div>
         {!isUser && showModel && (
           <div className='absolute -top-4 text-xs text-muted-foreground'>

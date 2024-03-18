@@ -35,49 +35,60 @@ export function useChat(
 
   const request = async (message: Message) => {
     setIsLoading(true)
+    setError(undefined)
 
-    const res = await ollama.chat({
-      model,
-      messages: [...messages, message],
-      stream: true,
-    })
+    try {
+      const res = await ollama.chat({
+        model,
+        messages: [...messages, message],
+        stream: true,
+      })
 
-    const newMsg = {
-      id: nanoid(),
-      role: 'assistant',
-      content: '',
-      model,
-    }
+      const newMsg = {
+        id: nanoid(),
+        role: 'assistant',
+        content: '',
+        model,
+      }
 
-    setMessages((prev) => [...prev, newMsg])
-    messagesRef.current = [...messagesRef.current, newMsg]
+      setMessages((prev) => [...prev, newMsg])
+      messagesRef.current = [...messagesRef.current, newMsg]
 
-    for await (const part of res) {
-      if (!part.done) {
-        messagesRef.current = [
-          ...messagesRef.current.slice(0, -1),
-          {
-            ...messagesRef.current[messagesRef.current.length - 1],
-            content:
-              messagesRef.current[messagesRef.current.length - 1].content +
-              part.message.content,
-          },
-        ]
-        setMessages((prev) => {
-          const last = prev[prev.length - 1]
-          return [
-            ...prev.slice(0, -1),
+      for await (const part of res) {
+        if (!part.done) {
+          messagesRef.current = [
+            ...messagesRef.current.slice(0, -1),
             {
-              ...last,
-              content: last.content + part.message.content,
+              ...messagesRef.current[messagesRef.current.length - 1],
+              content:
+                messagesRef.current[messagesRef.current.length - 1].content +
+                part.message.content,
             },
           ]
-        })
+          setMessages((prev) => {
+            const last = prev[prev.length - 1]
+            return [
+              ...prev.slice(0, -1),
+              {
+                ...last,
+                content: last.content + part.message.content,
+              },
+            ]
+          })
+        }
       }
+
+      await insertChat({ id, messages: messagesRef.current })
+      onFinish?.()
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log('Request aborted')
+        return
+      }
+      setError(err)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
-    await insertChat({ id, messages: messagesRef.current })
-    onFinish?.()
   }
 
   const append = async (message: Message) => {
@@ -98,7 +109,7 @@ export function useChat(
   }
 
   const stop = () => {
-    // TODO
+    ollama.abort()
   }
 
   return {

@@ -38,7 +38,6 @@ export function ChatSettings(
         </PopoverTrigger>
         <PopoverContent className='max-w-[200px]'>
           <div className='flex items-center justify-between text-sm'>
-            {/* <Label className='text-sm'>Show model</Label> */}
             <p className='text-sm'>Show model</p>
             <Checkbox checked={showModel} onCheckedChange={setShowModel} />
           </div>
