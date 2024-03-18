@@ -33,12 +33,7 @@ export function useChat(
 
   const messagesRef = useRef(messages)
 
-  const append = async (message: Message) => {
-    console.log(model, message)
-
-    setMessages((prev) => [...prev, message])
-    messagesRef.current = [...messagesRef.current, message]
-
+  const request = async (message: Message) => {
     setIsLoading(true)
 
     const res = await ollama.chat({
@@ -81,17 +76,25 @@ export function useChat(
       }
     }
     setIsLoading(false)
-
-    // using react the messages here will be empty if no initialMessages are provided
-    // because the state is not updated until we return from this function
     await insertChat({ id, messages: messagesRef.current })
-
     onFinish?.()
+  }
+
+  const append = async (message: Message) => {
+    console.log(model, message)
+    setMessages((prev) => [...prev, message])
+    messagesRef.current = [...messagesRef.current, message]
+    await request(message)
   }
 
   // regenerate the last AI chat response
   const reload = async () => {
-    // TODO
+    const last = messagesRef.current[messagesRef.current.length - 1]
+    if (last.role === 'assistant') {
+      setMessages((prev) => prev.slice(0, -1))
+      messagesRef.current = messagesRef.current.slice(0, -1)
+      await request(messagesRef.current[messagesRef.current.length - 1]) // last user message
+    }
   }
 
   const stop = () => {
